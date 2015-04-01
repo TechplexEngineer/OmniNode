@@ -195,6 +195,7 @@ class DynamicListener implements ActionListener, MouseListener, MouseMotionListe
     NodePanel NP;
     OmniPanel EP;
     Node WorkingNode;
+	Point lastPoint;
     boolean onANode = false;
     Node end1, end2;
     int count = 0;
@@ -211,6 +212,7 @@ class DynamicListener implements ActionListener, MouseListener, MouseMotionListe
         fc = new JFileChooser();
     }
 
+	
     public void actionPerformed(ActionEvent event) {
         //Button Pushes here
         //System.out.println("Dyn Listner: " + event.getActionCommand());
@@ -224,18 +226,20 @@ class DynamicListener implements ActionListener, MouseListener, MouseMotionListe
 
             if (str != null) // if they dont press cancel and dont leave the box blank
             {
-                //make sure that there is no duplicates.
-                if (IO.name2node(str, nodes) == null) {
-                    if (nodes.size() == 0) // its the first set guessed so its visible
-                    {
-                        nodes.add(new Node(WorkingNode.getPoint(), str, "guessed"));
-                    } else {
-                        nodes.add(new Node(WorkingNode.getPoint(), str));
-                    }
+				//make sure that there is no duplicates.
+				if (IO.name2node(str, nodes) == null) 
+				{
+					if (nodes.isEmpty()) // its the first set guessed so its visible
+					{
+						nodes.add(new Node(lastPoint, str, "guessed"));
+					} else {
+						nodes.add(new Node(lastPoint, str));
+					}
 
-                } else {
-                    IO.errMsg("Sorry a node with that name aready exists.", "Error: Names Match");
-                }
+				} else {
+					IO.errMsg("Sorry a node with that name aready exists.", "Error: Names Match");
+				}
+		
             }
         }
         if (e.equals("Edit")) {
@@ -311,12 +315,14 @@ class DynamicListener implements ActionListener, MouseListener, MouseMotionListe
             EUF.pack();
             EUF.setVisible(true);
         }
+		
+		NP.repaint();
     }
 ////////////////////////////////////////////////////////////////////////////////
 
     public void mouseClicked(MouseEvent event) {
         //System.out.println("clicked");
-
+		lastPoint = event.getPoint();
         WorkingNode = IO.point2node(event.getPoint(), nodes);
         if (WorkingNode != null) {
             onANode = true;
@@ -326,11 +332,11 @@ class DynamicListener implements ActionListener, MouseListener, MouseMotionListe
         clickAction(event);
     }
 
-    public void mousePressed(MouseEvent me) {
+    public void mousePressed(MouseEvent event) {
         //System.out.println("Mouse Pressed");
         //this is needed for drag functions
-        Point pressed = me.getPoint();
-
+        Point pressed = event.getPoint();
+		lastPoint = event.getPoint();
         // is it pressed and released on a node, or a connection
         WorkingNode = IO.point2node(pressed, nodes);
         if (WorkingNode != null) {
